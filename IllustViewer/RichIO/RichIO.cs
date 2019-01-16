@@ -125,42 +125,81 @@ namespace RichIO
         /// <returns>画像ID</returns>
         public int Write(byte[] image)
         {
-            int id = -1;
-            int size = image.Length;
-            int offset = -1;
-
+            int id;
             using (var storage = new FileStream(StoragePath, FileMode.Append | FileMode.Open, FileAccess.Write))
             {
-                offset = (int)storage.Seek(0, SeekOrigin.End);
-                storage.Write(image, 0, image.Length);
-            }
+                using (var dbfs = new FileStream(DatabasePath, FileMode.Append | FileMode.Open, FileAccess.Write))
+                {
+                    int offset = (int)storage.Seek(0, SeekOrigin.End);
+                    storage.Write(image, 0, image.Length);
 
-            using (var dbfs = new FileStream(DatabasePath, FileMode.Append | FileMode.Open, FileAccess.Write))
-            {
-                dbfs.Seek(0, SeekOrigin.End);
-                id = (int)dbfs.Position / 8;
-                var fileinfo = new FileInfo(size, offset);
-                dbfs.Write(fileinfo.ToBytes(), 0, 8);
-            }
+                    dbfs.Seek(0, SeekOrigin.End);
+                    id = (int)dbfs.Position / 8;
+                    var fileinfo = new FileInfo(image.Length, offset);
+                    dbfs.Write(fileinfo.ToBytes(), 0, 8);
 
+                    dbfs.Flush();
+                    storage.Flush();
+                }
+            }
             return id;
         }
 
         /// <summary>
-        /// 画像の書き込み
+        /// 非同期で画像の書き込み
         /// </summary>
         /// <param name="images">画像のバイナリの配列</param>
         /// <returns>画像IDの配列</returns>
-        public int[] Write(byte[][] images)
+        public async Task<int[]> Write(byte[][] images)
         {
-            var ids = new int[images.Length];
-
-            for (int i = 0; i < images.Length; ++i)
+            Task<int[]> task = Task.Run<int[]>(() =>
             {
-                ids[i] = Write(images[i]);
-            }
+                var ids = new int[images.Length];
 
-            return ids;
+                using (var storage = new FileStream(StoragePath, FileMode.Append | FileMode.Open, FileAccess.Write))
+                {
+                    using (var dbfs = new FileStream(DatabasePath, FileMode.Append | FileMode.Open, FileAccess.Write))
+                    {
+                        // 書き込みバッファの確保
+                        int total = 0;
+                        int[] offsets = new int[images.Length];
+                        offsets[0] = (int)storage.Seek(0, SeekOrigin.End);
+
+                        // オフセットを調べる
+                        for (int i = 1; i < images.Length; ++i)
+                        {
+                            offsets[i] = offsets[i - 1] + images[i - 1].Length;
+                        }
+
+                        // データベースに書き込んで全体のサイズを確定する
+                        dbfs.Seek(0, SeekOrigin.End);
+                        for (int i = 0; i < images.Length; ++i)
+                        {
+                            var info = new FileInfo(images[i].Length, offsets[i]);
+                            dbfs.Write(info.ToBytes(), 0, 8);
+
+                            ids[i] = (int)dbfs.Position / 8 - 1;
+                            total += images[i].Length;
+                        }
+
+                        // バッファを確保してまとめて書き込む
+                        byte[] buffer = new byte[total];
+                        int offset = 0;
+                        for (int i = 0; i < images.Length; ++i)
+                        {
+                            Array.Copy(buffer, offset, images[i], 0, images[i].Length);
+                            offset += images[i].Length;
+                        }
+                        storage.Write(buffer, 0, buffer.Length);
+                        dbfs.Flush();
+                        storage.Flush();
+                    }
+                }
+
+                return ids;
+            });
+            
+            return await task;
         }
 
         public void Truncate()
