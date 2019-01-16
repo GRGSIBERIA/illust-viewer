@@ -94,5 +94,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RichIO\RichIO.csproj">
+      <Project>{8ee3b1df-3a0e-44ee-b79c-371af3372bce}</Project>
+      <Name>RichIO</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
