@@ -46,6 +46,33 @@ namespace RichIO
             StoragePath = storagePath;
         }
 
+        private void ReadBuffer(FileStream dbfs, byte[] buffer, int id)
+        {
+            dbfs.Seek(id * 8, SeekOrigin.Begin);
+            dbfs.ReadAsync(buffer, 0, 8);
+        }
+
+        private void ReadImage(FileStream storage, byte[] image, ref FileInfo info)
+        {
+            storage.Seek(info.Offset, SeekOrigin.Begin);
+            storage.ReadAsync(image, 0, (int)info.Size);
+        }
+
+        private async Task<byte[]> ReadImageTask(FileStream dbfs, FileStream storage, byte[] buffer, int id)
+        {
+            Task<byte[]> imageTask = Task.Run<byte[]>(() =>
+            {
+                ReadBuffer(dbfs, buffer, id);
+
+                FileInfo info = new FileInfo(buffer);
+                var image = new byte[info.Size];
+
+                ReadImage(storage, image, ref info);
+                return image;
+            });
+            return await imageTask;
+        }
+        
         /// <summary>
         /// 非同期で読み込みを行う
         /// </summary>
@@ -53,27 +80,16 @@ namespace RichIO
         /// <returns>バイナリ</returns>
         public async Task<byte[]> Read(int id)
         {
+            Task<byte[]> task;
             var buffer = new byte[8];
-
-            Task<byte[]> imageTask = Task.Run<byte[]>(() => {
-                using (var dbfs = new FileStream(DatabasePath, FileMode.Open, FileAccess.Read))
-                {
-                    dbfs.Seek(id * 8, SeekOrigin.Begin);
-                    dbfs.ReadAsync(buffer, 0, 8);
-                }
-
-                FileInfo info = new FileInfo(buffer);
-                var image = new byte[info.Size];
-
+            using (var dbfs = new FileStream(DatabasePath, FileMode.Open, FileAccess.Read))
+            {
                 using (var storage = new FileStream(StoragePath, FileMode.Open, FileAccess.Read))
                 {
-                    storage.Seek(info.Offset, SeekOrigin.Begin);
-                    storage.ReadAsync(image, 0, (int)info.Size);
+                    task = ReadImageTask(dbfs, storage, buffer, id);
                 }
-                return image;
-            });
-
-            return await imageTask;
+            }
+            return await task;
         }
 
         /// <summary>
@@ -83,18 +99,23 @@ namespace RichIO
         /// <returns>画像IDに紐付いた複数のバイナリ</returns>
         public async Task<byte[][]> Read(int[] ids)
         {
-            Task<byte[][]> imagesTask = Task.Run<byte[][]>(() =>
+            Task<byte[][]> task;
+            using (var dbfs = new FileStream(DatabasePath, FileMode.Open, FileAccess.Read))
             {
-                var images = new byte[ids.Length][];
-
-                for (int i = 0; i < images.Length; ++i)
+                using (var storage = new FileStream(StoragePath, FileMode.Open, FileAccess.Read))
                 {
-                    images[i] = Read(ids[i]).Result;
+                    task = Task.Run<byte[][]>(() =>
+                    {
+                        var images = new byte[ids.Length][];
+                        for (int i = 0; i < images.Length; ++i)
+                        {
+                            images[i] = ReadImageTask(dbfs, storage, images[i], ids[i]).Result;
+                        }
+                        return images;
+                    });
                 }
-                return images;
-            });
-            
-            return await imagesTask;
+            }
+            return await task;
         }
 
         /// <summary>
@@ -146,6 +167,8 @@ namespace RichIO
         {
             var dbfs = new FileStream(DatabasePath, FileMode.Truncate | FileMode.Create, FileAccess.Write);
             var storage = new FileStream(StoragePath, FileMode.Truncate | FileMode.Create, FileAccess.Write);
+            dbfs.Dispose();
+            storage.Dispose();
         }
     }
 }
