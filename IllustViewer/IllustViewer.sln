@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IllustViewer", "IllustViewe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RichIO", "RichIO\RichIO.csproj", "{8EE3B1DF-3A0E-44EE-B79C-371AF3372BCE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RichIOTest", "RichIOTest\RichIOTest.csproj", "{A33B2DD5-D7CD-45D6-818A-FCDC4CC68583}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{8EE3B1DF-3A0E-44EE-B79C-371AF3372BCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8EE3B1DF-3A0E-44EE-B79C-371AF3372BCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8EE3B1DF-3A0E-44EE-B79C-371AF3372BCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A33B2DD5-D7CD-45D6-818A-FCDC4CC68583}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A33B2DD5-D7CD-45D6-818A-FCDC4CC68583}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A33B2DD5-D7CD-45D6-818A-FCDC4CC68583}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A33B2DD5-D7CD-45D6-818A-FCDC4CC68583}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -38,12 +38,48 @@ namespace RichIO
         public string DatabasePath { get; private set; }
         public string StoragePath { get; private set; }
 
-        long fileSize;
+        /// <summary>
+        /// データベースの容量を返す
+        /// </summary>
+        public int DatabaseSize
+        {
+            get
+            {
+                int retval;
+                using (var dbfs = new FileStream(DatabasePath, FileMode.Open, FileAccess.Read))
+                {
+                    dbfs.Seek(0, SeekOrigin.End);
+                    retval = (int)dbfs.Position;
+                }
+                return retval;
+            }
+        }
+
+        /// <summary>
+        /// ストレージの容量を返す
+        /// </summary>
+        public int StorageSize
+        {
+            get
+            {
+                int retval;
+                using (var storage = new FileStream(StoragePath, FileMode.Open, FileAccess.Read))
+                {
+                    storage.Seek(0, SeekOrigin.End);
+                    retval = (int)storage.Position;
+                }
+                return retval;
+            }
+        }
 
         public RichIO(string databasePath, string storagePath)
         {
             DatabasePath = databasePath;
             StoragePath = storagePath;
+
+            // ファイルが存在しない場合は作成する
+            using (var dbfs = new FileStream(databasePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read)) { }
+            using (var storage = new FileStream(storagePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read)) { }
         }
 
         private void ReadBuffer(FileStream dbfs, byte[] buffer, int id)
@@ -126,9 +162,9 @@ namespace RichIO
         public int Write(byte[] image)
         {
             int id;
-            using (var storage = new FileStream(StoragePath, FileMode.Append | FileMode.Open, FileAccess.Write))
+            using (var storage = new FileStream(StoragePath, FileMode.Append | FileMode.Open, FileAccess.Write, FileShare.Read))
             {
-                using (var dbfs = new FileStream(DatabasePath, FileMode.Append | FileMode.Open, FileAccess.Write))
+                using (var dbfs = new FileStream(DatabasePath, FileMode.Append | FileMode.Open, FileAccess.Write, FileShare.Read))
                 {
                     int offset = (int)storage.Seek(0, SeekOrigin.End);
                     storage.Write(image, 0, image.Length);
@@ -156,9 +192,9 @@ namespace RichIO
             {
                 var ids = new int[images.Length];
 
-                using (var storage = new FileStream(StoragePath, FileMode.Append | FileMode.Open, FileAccess.Write))
+                using (var storage = new FileStream(StoragePath, FileMode.Append | FileMode.Open, FileAccess.Write, FileShare.Read))
                 {
-                    using (var dbfs = new FileStream(DatabasePath, FileMode.Append | FileMode.Open, FileAccess.Write))
+                    using (var dbfs = new FileStream(DatabasePath, FileMode.Append | FileMode.Open, FileAccess.Write, FileShare.Read))
                     {
                         // 書き込みバッファの確保
                         int total = 0;
@@ -202,12 +238,21 @@ namespace RichIO
             return await task;
         }
 
+        private void ExistsAsTruncate(string path)
+        {
+            if (!File.Exists(path))
+                using (var file = new FileStream(path, FileMode.Create, FileAccess.Write)) { }
+            else
+                using (var file = new FileStream(path, FileMode.Truncate, FileAccess.Write)) { }
+        }
+
+        /// <summary>
+        /// [非推奨] ファイルの中身を空にする
+        /// </summary>
         public void Truncate()
         {
-            var dbfs = new FileStream(DatabasePath, FileMode.Truncate | FileMode.Create, FileAccess.Write);
-            var storage = new FileStream(StoragePath, FileMode.Truncate | FileMode.Create, FileAccess.Write);
-            dbfs.Dispose();
-            storage.Dispose();
+            ExistsAsTruncate(DatabasePath);
+            ExistsAsTruncate(StoragePath);
         }
     }
 }
