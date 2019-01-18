@@ -148,6 +148,20 @@ namespace RichIO
             return images;
         }
 
+        private int WriteImage(byte[] image, FileStream dbfs, FileStream storage)
+        {
+            var storageOffset = (int)storage.Seek(0, SeekOrigin.End);
+            storage.Write(image, 0, image.Length);
+
+            var fileinfo = new FileInfo(image.Length, storageOffset);
+            int dbfsOffset = (int)dbfs.Seek(0, SeekOrigin.End);
+            var id = dbfsOffset / 8;
+
+            dbfs.Write(fileinfo.ToBytes(), 0, 8);
+
+            return id;
+        }
+
         /// <summary>
         /// 画像を書き込んで書き込まれたIDを返す
         /// </summary>
@@ -160,13 +174,7 @@ namespace RichIO
             {
                 using (var dbfs = new FileStream(DatabasePath, FileMode.Append, FileAccess.Write, FileShare.Read))
                 {
-                    int offset = (int)storage.Seek(0, SeekOrigin.End);
-                    storage.Write(image, 0, image.Length);
-                    id = offset / 8;
-
-                    var fileinfo = new FileInfo(image.Length, offset);
-                    dbfs.Write(fileinfo.ToBytes(), 0, 8);
-
+                    id = WriteImage(image, dbfs, storage);
                     dbfs.Flush();
                     storage.Flush();
                 }
@@ -189,8 +197,10 @@ namespace RichIO
                 {
                     for (int i = 0; i < images.Length; ++i)
                     {
-                        ids[i] = Write(images[i]);
+                        ids[i] = WriteImage(images[i], dbfs, storage);
                     }
+                    dbfs.Flush();
+                    storage.Flush();
                 }
             }
             return ids;

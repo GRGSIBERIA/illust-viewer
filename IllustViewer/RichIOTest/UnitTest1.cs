@@ -64,22 +64,11 @@ namespace RichIOTest
             Assert.IsTrue(rio.DatabaseSize == 0);
         }
 
-        [TestMethod]
-        public void TestReadOne()
+        private void AssertWriteAsRead(int i)
         {
-        }
+            string path = "assets/" + i.ToString() + ".jpg";
 
-        [TestMethod]
-        public void TestReadMore()
-        {
-        }
-
-        [TestMethod]
-        public void TestImportOne()
-        {
-            rio.Truncate();
-
-            var buffer = ReadBytes("assets/1.jpg");
+            var buffer = ReadBytes(path);
             var hash = GetHashCode(buffer);
             var id = rio.Write(buffer);
 
@@ -90,8 +79,22 @@ namespace RichIOTest
         }
 
         [TestMethod]
+        public void TestImportOne()
+        {
+            rio.Truncate();
+
+            AssertWriteAsRead(1);
+        }
+
+        [TestMethod]
         public void TestImportMore()
         {
+            rio.Truncate();
+
+            for (int i = 1; i <= 23; ++i)
+            {
+                AssertWriteAsRead(i);
+            }
         }
     }
 }
