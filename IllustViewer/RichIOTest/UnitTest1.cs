@@ -78,6 +78,19 @@ namespace RichIOTest
             Assert.AreEqual(hash, hash2);
         }
 
+        private void AssertRead(int id)
+        {
+            string path = "assets/" + (id + 1).ToString() + ".jpg";
+
+            var buffer = ReadBytes(path);
+            var hash = GetHashCode(buffer);
+
+            var buffer2 = rio.Read(id);
+            var hash2 = GetHashCode(buffer2);
+
+            Assert.AreEqual(hash, hash2);
+        }
+
         [TestMethod]
         public void TestImportOne()
         {
@@ -94,6 +107,46 @@ namespace RichIOTest
             for (int i = 1; i <= 23; ++i)
             {
                 AssertWriteAsRead(i);
+            }
+        }
+
+        [TestMethod]
+        public void RandomRead()
+        {
+            rio.Truncate();
+            List<int> random = new List<int>();
+            System.Random rnd = new Random();
+
+            for (int i = 1; i < 24; ++i)
+            {
+                AssertWriteAsRead(i);
+                random.Add(i);
+            }
+
+            var randomsort = random.OrderBy(i => Guid.NewGuid()).ToArray();
+
+            foreach (var i in randomsort)
+            {
+                AssertRead(i - 1);
+            }
+        }
+
+        [TestMethod]
+        public void TestImportList()
+        {
+            rio.Truncate();
+
+            byte[][] images = new byte[23][];
+            for (int i = 1; i < 24; ++i)
+            {
+                string path = "assets/" + i.ToString() + ".jpg";
+                images[i - 1] = ReadBytes(path);
+            }
+
+            int[] ids = rio.Write(images);
+            foreach (var id in ids)
+            {
+                AssertRead(id);
             }
         }
     }
