@@ -6,16 +6,55 @@
         xmlns:local="clr-namespace:IllustViewer"
         mc:Ignorable="d"
         Title="Illust Viewer" Height="450" Width="800">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Japanese.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
-        <Menu VerticalAlignment="Top">
-            <MenuItem Header="ファイル (_F)">
-                <MenuItem Header="設定 (_O)" />
-                <Separator/>
-                <MenuItem Header="終了 (_E)" />
-            </MenuItem>
-            <MenuItem Header="ヘルプ (_H)">
-                <MenuItem Header="バージョン情報 (_V)" />
-            </MenuItem>
-        </Menu>
+        <DockPanel>
+            <Menu VerticalAlignment="Top" DockPanel.Dock="Top">
+                <MenuItem Header="{StaticResource FileText}">
+                    <MenuItem Header="{StaticResource SettingText}" />
+                    <Separator/>
+                    <MenuItem Header="{StaticResource ExitText}" />
+                </MenuItem>
+                <MenuItem Header="{StaticResource HelpText}">
+                    <MenuItem Header="{StaticResource VersionText}" />
+                </MenuItem>
+            </Menu>
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="{StaticResource SearchLabel}" />
+                        <Separator Width="8" Background="Transparent" />
+                        <TextBox Width="300" />
+                    </StackPanel>
+                    <Separator Width="8" Background="Transparent" />
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="{StaticResource FilterLabel}"/>
+                        <Separator Width="8" Background="Transparent" />
+                        <Button Content="1" Width="32" />
+                        <Button Content="2" Width="32" />
+                        <Button Content="3" Width="32" />
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+            <Grid DockPanel.Dock="Bottom" Height="64">
+                <Button Content="1" />
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="100*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Background="BlueViolet" />
+                <GridSplitter Grid.Column="1" HorizontalAlignment="Center" Width="3"/>
+                <StackPanel Grid.Column="2" Background="DarkRed" />
+            </Grid>
+        </DockPanel>
     </Grid>
 </Window>
