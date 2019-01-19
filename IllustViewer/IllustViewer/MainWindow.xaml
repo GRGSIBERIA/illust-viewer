@@ -26,14 +26,14 @@
                 </MenuItem>
             </Menu>
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
-                <StackPanel Orientation="Horizontal">
-                    <StackPanel Orientation="Horizontal">
-                        <Label Content="{StaticResource SearchLabel}" />
+                <StackPanel Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal" Margin="4,4,0,4">
+                        <Button Content="Screen" />
+                        <Button Content="Collage" />
+                        <Button Content="Size" />
                         <Separator Width="8" Background="Transparent" />
-                        <TextBox Width="250" />
-                    </StackPanel>
-                    <Separator Width="8" Background="Transparent" />
-                    <StackPanel Orientation="Horizontal">
+                        <Slider Width="128" />
+                        <Separator Width="8" Background="Transparent" />
                         <Label Content="{StaticResource FilterLabel}"/>
                         <Separator Width="8" Background="Transparent" />
                         <Button Content="1" Width="32" />
@@ -41,6 +41,14 @@
                         <Button Content="3" Width="32" />
                         <Separator Width="16" Background="Transparent" />
                         <Slider Width="128" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="4,0,0,4">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="{StaticResource SearchLabel}" />
+                            <Separator Width="8" Background="Transparent" />
+                            <TextBox Width="250" />
+                            <Button Content="Add" Width="48"/>
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
