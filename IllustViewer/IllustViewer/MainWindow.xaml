@@ -5,8 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IllustViewer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Illust Viewer" Height="450" Width="800">
     <Grid>
-        
+        <Menu VerticalAlignment="Top">
+            <MenuItem Header="ファイル (_F)">
+                <MenuItem Header="設定 (_O)" />
+                <Separator/>
+                <MenuItem Header="終了 (_E)" />
+            </MenuItem>
+            <MenuItem Header="ヘルプ (_H)">
+                <MenuItem Header="バージョン情報 (_V)" />
+            </MenuItem>
+        </Menu>
     </Grid>
 </Window>
