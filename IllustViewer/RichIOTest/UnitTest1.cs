@@ -64,18 +64,22 @@ namespace RichIOTest
             Assert.IsTrue(rio.DatabaseSize == 0);
         }
 
+        private void CompareHash(byte[] a, byte[] b)
+        {
+            var hash1 = GetHashCode(a);
+            var hash2 = GetHashCode(b);
+            Assert.AreEqual(hash1, hash2);
+        }
+
         private void AssertWriteAsRead(int i)
         {
             string path = "assets/" + i.ToString() + ".jpg";
 
             var buffer = ReadBytes(path);
-            var hash = GetHashCode(buffer);
             var id = rio.Write(buffer);
 
             var buffer2 = rio.Read(id);
-            var hash2 = GetHashCode(buffer2);
-
-            Assert.AreEqual(hash, hash2);
+            CompareHash(buffer, buffer2);
         }
 
         private void AssertRead(int id)
@@ -83,12 +87,8 @@ namespace RichIOTest
             string path = "assets/" + (id + 1).ToString() + ".jpg";
 
             var buffer = ReadBytes(path);
-            var hash = GetHashCode(buffer);
-
             var buffer2 = rio.Read(id);
-            var hash2 = GetHashCode(buffer2);
-
-            Assert.AreEqual(hash, hash2);
+            CompareHash(buffer, buffer2);
         }
 
         [TestMethod]
@@ -131,11 +131,8 @@ namespace RichIOTest
             }
         }
 
-        [TestMethod]
-        public void TestImportList()
+        private int[] WriteList()
         {
-            rio.Truncate();
-
             byte[][] images = new byte[23][];
             for (int i = 1; i < 24; ++i)
             {
@@ -143,10 +140,32 @@ namespace RichIOTest
                 images[i - 1] = ReadBytes(path);
             }
 
-            int[] ids = rio.Write(images);
+            return rio.Write(images);
+        }
+
+        [TestMethod]
+        public void TestImportList()
+        {
+            rio.Truncate();
+            int[] ids = WriteList();
+            
             foreach (var id in ids)
             {
                 AssertRead(id);
+            }
+        }
+
+        [TestMethod]
+        public void TestReadMany()
+        {
+            rio.Truncate();
+            int[] ids = WriteList();
+            byte[][] images = rio.Read(ids);
+
+            for (int i = 0; i < images.Length; ++i)
+            {
+                var buffer = ReadBytes("assets/" + (i + 1).ToString() + ".jpg");
+                CompareHash(images[i], buffer);
             }
         }
     }
