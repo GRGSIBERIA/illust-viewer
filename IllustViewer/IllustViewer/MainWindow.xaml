@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IllustViewer"
         mc:Ignorable="d"
-        Title="Illust Viewer" Height="450" Width="800">
+        Title="Illust Viewer" Height="480" Width="640" MinWidth="640" MinHeight="480">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -30,7 +30,7 @@
                     <StackPanel Orientation="Horizontal">
                         <Label Content="{StaticResource SearchLabel}" />
                         <Separator Width="8" Background="Transparent" />
-                        <TextBox Width="300" />
+                        <TextBox Width="250" />
                     </StackPanel>
                     <Separator Width="8" Background="Transparent" />
                     <StackPanel Orientation="Horizontal">
@@ -39,6 +39,8 @@
                         <Button Content="1" Width="32" />
                         <Button Content="2" Width="32" />
                         <Button Content="3" Width="32" />
+                        <Separator Width="16" Background="Transparent" />
+                        <Slider Width="128" />
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
