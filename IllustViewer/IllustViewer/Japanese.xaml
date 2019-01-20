@@ -9,4 +9,7 @@
     <system:String x:Key="SettingText">設定 (_S)</system:String>
     <system:String x:Key="SearchLabel">検索</system:String>
     <system:String x:Key="FilterLabel">フィルタ</system:String>
+    <system:String x:Key="ViewText">表示 (_V)</system:String>
+    <system:String x:Key="FullScreen">フルスクリーン (_F5)</system:String>
+    <system:String x:Key="Collage">コラージュ</system:String>
 </ResourceDictionary>

@@ -99,6 +99,7 @@ namespace IllustViewer.Library
         /// <summary>
         /// ファイルが追加されたときのイベント
         /// </summary>
+        /// <remarks>追加されたファイルのIDを通知する方法がわからない</remarks>
         /// <param name="source"></param>
         /// <param name="e"></param>
         private void AddFile(Object source, FileSystemEventArgs e)
