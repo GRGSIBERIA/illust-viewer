@@ -47,13 +47,30 @@
                             <Label Content="{StaticResource SearchLabel}" />
                             <Separator Width="8" Background="Transparent" />
                             <TextBox Width="250" />
-                            <Button Content="Add" Width="48"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
-            <Grid DockPanel.Dock="Bottom" Height="64">
-                <Button Content="1" />
+            <Grid DockPanel.Dock="Bottom" Height="96">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="70*" />
+                    <ColumnDefinition Width="100*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Margin="4,4,4,4">
+                    <Label Content="レシピ" />
+                    <ScrollViewer>
+                        <StackPanel Orientation="Horizontal" Height="62">
+                            
+                        </StackPanel>
+                    </ScrollViewer>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Margin="4,4,4,4">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="ﾋﾟｯｸ" Width="32" Height="24" Margin="0,0,4,0" />
+                        <Button Content="ｲｲﾈ" Width="32" Height="24" Margin="0,0,4,0"/>
+                        <Button Content="д" Width="32" Height="24" Margin="0,0,4,0"/>
+                    </StackPanel>
+                </StackPanel>
             </Grid>
             <Grid>
                 <Grid.ColumnDefinitions>
