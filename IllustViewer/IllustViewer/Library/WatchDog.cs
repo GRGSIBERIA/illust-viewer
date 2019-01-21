@@ -22,20 +22,17 @@ namespace IllustViewer.Library
                 throw new FileNotFoundException(path);
 
             // 既にディレクトリが存在する場合はイベントの重複を防ぐため操作を無視する
-            bool exists = false;
             foreach (var d in dogs)
             {
                 if (d.Path == path)
-                    exists = true;
+                    return;
             }
 
             var dog = new FileSystemWatcher(path, filter);
             dog.IncludeSubdirectories = true;
             dog.EnableRaisingEvents = true;
             dog.Created += AddFile;
-
-            if (!exists)
-                dogs.Add(dog);
+            dogs.Add(dog);
         }
 
         public WatchDog(Window window, RichIO.RichIO rio, string[] watchPathes)

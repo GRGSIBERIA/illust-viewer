@@ -11,10 +11,10 @@ namespace IllustViewer.Library
 {
     public class Config
     {
-        public string ConfigPath;
-        public string DatabasePath;
-        public string StoragePath;
-        public string SQLitePath;
+        public string DatabasePath { get; set; }
+        public string StoragePath { get; set; }
+        public string SQLitePath { get; set; }
+        public string[] WatchingPath { get; set; }
     }
 
     public class ConfigFile
@@ -32,9 +32,21 @@ namespace IllustViewer.Library
             ConfigPath = configPath;
             serializer = new XmlSerializer(typeof(Config));
 
-            using (var stream = new StreamReader(ConfigPath, new System.Text.UTF8Encoding(true)))
+            try
             {
-                Config = serializer.Deserialize(stream) as Config;
+                using (var stream = new StreamReader(ConfigPath, new System.Text.UTF8Encoding(true)))
+                {
+                    Config = serializer.Deserialize(stream) as Config;
+                }
+            }
+            catch
+            {
+                Config = new Config();
+                Config.StoragePath = "storage.sto";
+                Config.SQLitePath = "rdb.sqlite";
+                Config.DatabasePath = "database.db";
+                Config.WatchingPath = new string[] { };
+                Save();
             }
         }
 

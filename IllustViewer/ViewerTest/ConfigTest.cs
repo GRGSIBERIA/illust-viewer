@@ -14,8 +14,9 @@ namespace ViewerTest
         }
 
         [TestMethod]
-        public void Test()
+        public void TestSave()
         {
+            config.Save();
         }
     }
 }

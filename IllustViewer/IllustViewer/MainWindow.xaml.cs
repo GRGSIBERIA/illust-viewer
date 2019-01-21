@@ -25,6 +25,7 @@ namespace IllustViewer
     {
         WatchDog watchdog;
         RichIO.RichIO richio;
+        ConfigFile config;
 
         public MainWindow()
         {
@@ -34,8 +35,9 @@ namespace IllustViewer
                 // 実際にはコンフィグファイルを読み込んだ後に処理する必要があるので
                 // コンフィグを読むまではここで仮埋めしておく
                 // コンフィグが実装できたらきちんと埋める
-                richio = new RichIO.RichIO("database.db", "storage.sto");
-                watchdog = new WatchDog(this, richio, new string[] { });
+                config = new ConfigFile("config.xml");
+                richio = new RichIO.RichIO(config.Config.DatabasePath, config.Config.StoragePath);
+                watchdog = new WatchDog(this, richio, config.Config.WatchingPath);
             };
         }
     }
