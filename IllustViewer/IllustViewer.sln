@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RichIO", "RichIO\RichIO.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RichIOTest", "RichIOTest\RichIOTest.csproj", "{A33B2DD5-D7CD-45D6-818A-FCDC4CC68583}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViewerTest", "ViewerTest\ViewerTest.csproj", "{75ADD33C-BB50-45CC-842B-8844008C8818}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{A33B2DD5-D7CD-45D6-818A-FCDC4CC68583}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A33B2DD5-D7CD-45D6-818A-FCDC4CC68583}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A33B2DD5-D7CD-45D6-818A-FCDC4CC68583}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75ADD33C-BB50-45CC-842B-8844008C8818}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75ADD33C-BB50-45CC-842B-8844008C8818}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75ADD33C-BB50-45CC-842B-8844008C8818}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75ADD33C-BB50-45CC-842B-8844008C8818}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

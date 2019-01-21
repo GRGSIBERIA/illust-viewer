@@ -11,8 +11,10 @@ namespace IllustViewer.Library
 {
     public class Config
     {
+        public string ConfigPath;
         public string DatabasePath;
         public string StoragePath;
+        public string SQLitePath;
     }
 
     public class ConfigFile
