@@ -35,6 +35,12 @@ namespace IllustViewer.Library
             dogs.Add(dog);
         }
 
+        /// <summary>
+        /// ディレクトリを監視して，ファイルが追加されたらDBに追加する処理を行うクラス
+        /// </summary>
+        /// <param name="window"></param>
+        /// <param name="rio"></param>
+        /// <param name="watchPathes"></param>
         public WatchDog(Window window, RichIO.RichIO rio, string[] watchPathes)
         {
             this.window = window;
