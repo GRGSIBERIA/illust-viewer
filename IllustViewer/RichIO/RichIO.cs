@@ -92,21 +92,14 @@ namespace RichIO
             return new FileInfo(buffer);
         }
 
-        private void ReadImage(FileStream storage, byte[] image, ref FileInfo info)
+        private byte[] ReadImage(ref FileInfo info, FileStream storage)
         {
-            storage.Seek(info.Offset, SeekOrigin.Begin);
-            storage.Read(image, 0, (int)info.Size);
-        }
-
-        private byte[] ReadImageProcedure(FileStream dbfs, FileStream storage, int id)
-        {
-            var info = ReadFileInfo(dbfs, id);
-
             var image = new byte[info.Size];
-            ReadImage(storage, image, ref info);
+            storage.Seek(info.Offset, SeekOrigin.Begin);
+            storage.Read(image, 0, info.Size);
             return image;
         }
-        
+
         /// <summary>
         /// 画像の読み込みを行う
         /// </summary>
@@ -114,34 +107,41 @@ namespace RichIO
         /// <returns>バイナリ</returns>
         public byte[] Read(int id)
         {
-            byte[] image;
-
-            using (var dbfs = new FileStream(DatabasePath, FileMode.Open, FileAccess.Read))
+            using (var dbfs = new FileStream(DatabasePath, FileMode.Open, FileAccess.Read, FileShare.Read, 8))
             {
-                using (var storage = new FileStream(StoragePath, FileMode.Open, FileAccess.Read))
+                var info = ReadFileInfo(dbfs, id);
+
+                using (var storage = new FileStream(StoragePath, FileMode.Open, FileAccess.Read, FileShare.Read, info.Size))
                 {
-                    image = ReadImageProcedure(dbfs, storage, id);
+                    return ReadImage(ref info, storage);
                 }
             }
-            return image;
         }
 
         /// <summary>
         /// 複数画像を読み込む
         /// </summary>
-        /// <param name="ids">複数の画像ID</param>
+        /// <param name="ids">複数の画像ID，ソートしたほうがいい</param>
         /// <returns>画像IDに紐付いた複数のバイナリ</returns>
         public byte[][] Read(int[] ids)
         {
-            byte[][] images;
-            using (var dbfs = new FileStream(DatabasePath, FileMode.Open, FileAccess.Read))
+            byte[][] images = new byte[ids.Length][];
+            FileInfo[] infos = new FileInfo[ids.Length];
+
+            using (var dbfs = new FileStream(DatabasePath, FileMode.Open, FileAccess.Read, FileShare.Read, 8 * ids.Length))
             {
-                using (var storage = new FileStream(StoragePath, FileMode.Open, FileAccess.Read))
+                int totalSize = 0;
+                for (int i = 0; i < images.Length; ++i)
                 {
-                    images = new byte[ids.Length][];
-                    for (int i = 0; i < images.Length; ++i)
+                    infos[i] = ReadFileInfo(dbfs, i);
+                    totalSize += infos[i].Size;
+                }
+
+                for (int i = 0; i < images.Length; ++i)
+                { 
+                    using (var storage = new FileStream(StoragePath, FileMode.Open, FileAccess.Read, FileShare.Read, totalSize))
                     {
-                        images[i] = ReadImageProcedure(dbfs, storage, ids[i]);
+                        images[i] = ReadImage(ref infos[i], storage);
                     }
                 }
             }
@@ -170,9 +170,10 @@ namespace RichIO
         public int Write(byte[] image)
         {
             int id;
-            using (var storage = new FileStream(StoragePath, FileMode.Append, FileAccess.Write, FileShare.Read))
+
+            using (var storage = new FileStream(StoragePath, FileMode.Append, FileAccess.Write, FileShare.Write, image.Length))
             {
-                using (var dbfs = new FileStream(DatabasePath, FileMode.Append, FileAccess.Write, FileShare.Read))
+                using (var dbfs = new FileStream(DatabasePath, FileMode.Append, FileAccess.Write, FileShare.Write, 8))
                 {
                     id = WriteImage(image, dbfs, storage);
                     dbfs.Flush();
@@ -190,10 +191,13 @@ namespace RichIO
         public int[] Write(byte[][] images)
         {
             int[] ids = new int[images.Length];
+            int totalSize = 0;
+            foreach (var image in images)
+                totalSize += image.Length;
 
-            using (var storage = new FileStream(StoragePath, FileMode.Append, FileAccess.Write, FileShare.Read))
+            using (var storage = new FileStream(StoragePath, FileMode.Append, FileAccess.Write, FileShare.Write, totalSize))
             {
-                using (var dbfs = new FileStream(DatabasePath, FileMode.Append, FileAccess.Write, FileShare.Read))
+                using (var dbfs = new FileStream(DatabasePath, FileMode.Append, FileAccess.Write, FileShare.Write, 8 * images.Length))
                 {
                     for (int i = 0; i < images.Length; ++i)
                     {
@@ -206,6 +210,10 @@ namespace RichIO
             return ids;
         }
 
+        /// <summary>
+        /// ファイルが存在しなければ作成して，存在すれば空にする
+        /// </summary>
+        /// <param name="path"></param>
         private void ExistsAsTruncate(string path)
         {
             if (!File.Exists(path))
